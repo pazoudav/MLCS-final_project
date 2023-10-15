@@ -30,7 +30,7 @@ def extract_api_calls(source_dir, target_dir):
     os.remove('temp')
     
 
-def make_families_by_shas_json():
+def make_data_by_hash_json():
     allowed_hashes = set([name.split('.')[0] for name in os.listdir('data/dataset')])
     hash_tag_dict = {}
     with open('data/shas_by_families.json', 'r') as f:
@@ -44,16 +44,19 @@ def make_families_by_shas_json():
                         hash_tag_dict[hash] = set()
                     hash_tag_dict[hash].add(tag)
                     
-    for key, value in hash_tag_dict.items():
-        hash_tag_dict[key] = list(value)
+    for idx, item in enumerate(hash_tag_dict.items()):
+        sequence_log(idx, len(hash_tag_dict), 1000)
+        key, value = item
+        with open(f'data/dataset/{hash}.txt', 'r') as f:
+            api_calls = f.read()
+        api_calls = api_calls.split(',')[:-1]
+        hash_tag_dict[key] = {'tags': list(value),
+                              'api_calls': api_calls}
 
-    with open('data/families_by_shas.json', 'w') as f:
+    with open('data/data_by_hash.json', 'w') as f:
         json.dump(hash_tag_dict, f, indent=2)
     
     
 if __name__ == '__main__':
     extract_api_calls('data/dataset_raw', 'data/dataset')
-    make_families_by_shas_json()
-
-
-
+    make_data_by_hash_json()

@@ -3,3 +3,8 @@
 /data/shas_by_families_backup.json
 /mc.exe
 /temp
+/*.pdf
+/data/train
+/data/test
+/data/validate
+/data/data_by_hash.json
