@@ -65,7 +65,7 @@ class KMeansLabeller(Labeller):
     def __init__(self, k) -> None:
         super().__init__()
         print('fitting clustering model')
-        self.k = 8
+        self.k = k
         self.model = KMeans(n_clusters=k, init='k-means++', n_init='auto', max_iter=10000)
         self.model.fit(self.tag_vecs)
     
