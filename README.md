@@ -18,4 +18,9 @@ evaluation.
 
 In [A3](https://reykjavik.instructure.com/courses/7360/assignments/72060), it turned out that the best solutions generally used a simple bag-of-words (or rather bag-of-API-calls) approach with a random forest classiﬁer. An excellent project is expected to make another attempt to explore appraoches that consider the order of /  sequences of API calls as a basis to improve classiﬁcation.
 
+dataset
+-------
+Preprocessed dataset containing a list of API calls in a .txt file per virus execution available at this [google drive](https://drive.google.com/drive/folders/1MIeGFoPN31bOtrMAiAi8hC3sneU95H9J?usp=sharing).
+Size of the dataset is 2.1GB.
+
 

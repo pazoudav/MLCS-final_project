@@ -79,7 +79,7 @@ tag_vecs = np.array([tags_to_vec(tags) for tags in all_tags])
 
 print('fitting clustering model')
 k = 16
-clustering_model = KMeans(n_clusters=k, init='k-means++', max_iter=1000)
+clustering_model = KMeans(n_clusters=k, init='k-means++', n_init='auto', max_iter=10000)
 labels = clustering_model.fit_predict(tag_vecs)
 
 for l in range(k):
