@@ -72,11 +72,16 @@ class Labeller():
         return [self.tags_to_vec(tags) for tags in tags_list]
    
    
+class EnumerativeLabeller(Labeller):
+    def __init__(self) -> None:
+        super().__init__()
+        self.name = 'Enumerative'
+        
+   
 class KMeansLabeller(Labeller):
     def __init__(self, k) -> None:
         super().__init__()
         self.name = f'KMeans{k}'
-        print('fitting clustering model')
         self.k = k
         
     def make(self):
