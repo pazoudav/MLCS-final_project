@@ -5,6 +5,7 @@ from copy import deepcopy
 import json
 import numpy as np
 import os
+from joblib import dump, load
 
 ALL_TAGS = ['agobot', 'allaple', 'allowinfirewall', 'almanahe', 'amadey', 'amrat', 'antianalysis', 'antiav', 'antivm', 'arkeistealer', 'asackytrojan', 'asyncrat', 'autoitrunpe', 'avkeylogger', 'badpath', 'balrok', 'banker', 'base64encoded', 'berbew', 'bifrose', 'blackmoon', 'blackshades', 'bladabindi', 'blankgrabber', 'bobax', 'bodelph', 'brontok', 'buterat', 'ceatrg', 'cobaltstrike', 'coinminer', 'coins', 'coinstealer', 'crackedbyximo', 'crat', 'crealstealer', 'cybergate', 'cybergateinjector', 'darkcomet', 'dcrat', 'delphipacker', 'disabler', 'discordtokengrabber', 'dllinjectionshellcode', 'dorkbot', 'downloader', 'drat', 'drolnux', 'dropper', 'eggnog', 'fakeav', 'fakeextension', 'fakesvchost', 'fakesystemfile', 'farfli', 'fasong', 'floxif', 'formbook', 'ftpstealer', 'futurax', 'gandcrab', 'ganelp', 'genericantianalysis', 'genericantivm', 'genericdiscordtokengrabber', 'genericfakewindowsfile', 'generickeylogger', 'genericp2pworm', 'genericransomware', 'genericstealer', 'gepys', 'ghost', 'gigex', 'gleamal', 'heavensgate', 'hiveanalysis', 'hostsdisabler', 'imperium', 'keydoor', 'keylogger', 'killmbr', 'knightlogger', 'kryptik', 'lightmoon', 'loader', 'lokibot', 'lucifertokengrabber', 'ludbaruma', 'lummastealer', 'lunagrabber', 'lydra', 'maldosheader', 'mewsspy', 'mira', 'moarider', 'mofksys', 'moonlight', 'mumador', 'mydoom', 'nancatsurveillanceex', 'nanocore', 'neshta', 'netinjector', 'netkryptik', 'netlogger', 'netwire', 'nevereg', 'nitol', 'nofear', 'nworm', 'obfuscatedpersistence', 'obfuscatedrunpe', 'palevo', 'pastebinloader', 'picsys', 'pistolar', 'pluto', 'pony', 'prepscram', 'pupstudio', 'qbot', 'quasarrat', 'ramnit', 'ransomware', 'redline', 'rednet', 'reflectiveloader', 'remcosrat', 'revengerat', 'reverseencoded', 'ridnu', 'rifle', 'rotinom', 'rozena', 'runpe', 'sakularat', 'salgorea', 'sality', 'scar', 'sfone', 'shade', 'shellcode', 'shifu', 'sillyp2p', 'simbot', 'simda', 'smokeloader', 'snakekeylogger', 'socks', 'soltern', 'spy', 'stealer', 'stopransomware', 'suspiciouspdbpath', 'syla', 'telegrambot', 'tempedreve', 'tinba', 'tofsee', 'uacbypass', 'unruy', 'upatre', 'urelas', 'vbautorunworm', 'vbinjector', 'vboxvulndriver', 'vbsdropper', 'vflooder', 'vilsel', 'virut', 'vmprotect', 'vobfus', 'vulnerabledriver', 'wabot', 'windefenderdisabler', 'windex', 'winpayloads', 'wormautorun', 'wormyfier', 'xorencrypted', 'xredrat', 'xwormrat', 'zegost', 'zeus', 'zxshell']
 ALL_TAGS_DICT = {tag: idx for idx, tag in enumerate(ALL_TAGS)}
@@ -12,6 +13,12 @@ ALL_TAGS_DICT = {tag: idx for idx, tag in enumerate(ALL_TAGS)}
 
 class Labeller():
     def __init__(self) -> None:
+        self.name = 'Basic'
+        self.hashes = set()
+        self.tag_to_hashs = {}
+        self.hash_to_tags = {}
+        
+    def make(self):
         self.hashes = set([name.split('.')[0] for name in os.listdir('data/dataset')])
 
         self.tag_to_hashs = {}
@@ -23,11 +30,15 @@ class Labeller():
         with open('data/families_by_shas.json', 'r') as f:
                 self.hash_to_tags = json.load(f)
                 
-        print('getting tags')
-        all_tags = [self.hash_to_tags[hash] for hash in self.hashes]
-        self.tag_vecs = np.array([self.tags_to_vec(tags) for tags in all_tags])
-                
+               
+    def save(self):
+        dump(self, f'labellers/{self.name}.lbl')
+        return self
     
+    def load(self):
+        self = load(f'labellers/{self.name}.lbl')
+        return self
+                
     def vec_to_tags(self, vec):
         tags = []
         for idx, val in enumerate(vec):
@@ -64,12 +75,20 @@ class Labeller():
 class KMeansLabeller(Labeller):
     def __init__(self, k) -> None:
         super().__init__()
+        self.name = f'KMeans{k}'
         print('fitting clustering model')
         self.k = k
-        self.model = KMeans(n_clusters=k, init='k-means++', n_init='auto', max_iter=10000)
+        
+    def make(self):
+        super().make()
+        all_tags = [self.hash_to_tags[hash] for hash in self.hashes]
+        self.tag_vecs = np.array([self.tags_to_vec(tags) for tags in all_tags])
+        self.model = KMeans(n_clusters=self.k, init='k-means++', n_init='auto', max_iter=10000)
         self.model.fit(self.tag_vecs)
+        return self
     
     def label(self, tags_list):
+        tags_list = [self.tags_to_vec(tags) for tags in tags_list]
         return self.model.predict(tags_list)
     
     def analyze(self, labels):
@@ -93,8 +112,6 @@ class KMeansLabeller(Labeller):
             print(len(self.find_hashes(important_tags)))
             print('----------------------------')
      
-   
-
 
 
 # hash_to_tags_str = {hash: sorted(tags).__str__() for hash, tags in hash_to_tags.items()}
