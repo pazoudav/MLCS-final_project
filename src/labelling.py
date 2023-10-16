@@ -76,8 +76,21 @@ class EnumerativeLabeller(Labeller):
     def __init__(self) -> None:
         super().__init__()
         self.name = 'Enumerative'
-        
-   
+        self.vec_to_num = {}
+    
+    def make(self):
+        super().make() 
+        unique_vecs = set(tuple(self.tags_to_vec(tags)) for tags in self.hash_to_tags.values())
+        self.vec_to_num = {vec: idx for idx,vec in enumerate(unique_vecs)}        
+        return self 
+    
+    def label(self, tags_list):
+        labels = []
+        for tags in tags_list:
+            labels.append(self.vec_to_num[tuple(self.tags_to_vec(tags))])
+        return labels
+ 
+       
 class KMeansLabeller(Labeller):
     def __init__(self, k) -> None:
         super().__init__()
@@ -117,7 +130,6 @@ class KMeansLabeller(Labeller):
             print(len(self.find_hashes(important_tags)))
             print('----------------------------')
      
-
 
 # hash_to_tags_str = {hash: sorted(tags).__str__() for hash, tags in hash_to_tags.items()}
 # str_tag_dist = {}
