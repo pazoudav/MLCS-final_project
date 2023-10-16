@@ -38,7 +38,6 @@ class BagOfWordsEncoder(Encoder):
         self.API_calls_dict = {API_call: idx for idx, API_call in enumerate(self.API_calls)}
         return self
         
-    
     def encode(self, data):
         transformed_data = []
         for sample in data:
@@ -49,6 +48,7 @@ class BagOfWordsEncoder(Encoder):
                 transformed_sample[self.API_calls_dict[API_call]] = True
             transformed_data.append(transformed_sample)
         return transformed_data
+        
         
 class FrequencyEncoder(BagOfWordsEncoder):
     def __init__(self) -> None:
@@ -65,6 +65,18 @@ class FrequencyEncoder(BagOfWordsEncoder):
                 transformed_sample[self.API_calls_dict[API_call]] += 1
             transformed_data.append(transformed_sample)
         return transformed_data
+    
+
+# TO DO n-gram encodings
+class NGramEncoder(Encoder):
+    def __init__(self,n) -> None:
+        super().__init__()
+        self.n = n
+
+
+# # TO DO tf-idf encoding
+# class TF_IDFEncoder(Encoder):
+#     ...
     
 
 
