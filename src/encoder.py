@@ -1,10 +1,14 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from split_data import get_train_test
 from joblib import dump, load
+from nltk.util import ngrams
 
 class Encoder():
     def __init__(self) -> None:
         self.name = 'Basic'
+    
+    def make(self):
+        ...
     
     def encode(self, data):
         return data
@@ -67,11 +71,34 @@ class FrequencyEncoder(BagOfWordsEncoder):
         return transformed_data
     
 
-# TO DO n-gram encodings
 class NGramEncoder(Encoder):
     def __init__(self,n) -> None:
         super().__init__()
+        self.name = f'{n}Gram'
         self.n = n
+        self.API_gram_set = set()
+        
+    def make(self):
+        X_train, _, _, _ = get_train_test('basic_split')
+        for sample in X_train:
+            for API_gram in list(ngrams(sample, self.n)):
+                self.API_gram_set.add(API_gram)
+        self.API_gram_set.add('UNK')
+        self.API_gram_dict = {API_gram: idx for idx, API_gram in enumerate(self.API_gram_set)}
+        return self
+        
+    def encode(self, data):
+        transformed_data = []
+        for sample in data:
+            transformed_sample = [False]*len(self.API_gram_set)
+            API_grams = ngrams(sample, self.n)
+            for API_gram in API_grams:
+                if API_gram not in self.API_gram_set:
+                    API_gram = 'UNK'
+                transformed_sample[self.API_gram_dict[API_gram]] = True
+            transformed_data.append(transformed_sample)
+        return transformed_data
+
 
 
 # # TO DO tf-idf encoding
