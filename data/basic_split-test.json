@@ -1,0 +1,20 @@
+{
+    "source": 
+        "data_by_hash-small", 
+    "train": 
+        [ 
+            "001138ec6c475e9e8f873bec7172bc4c2d8a5fa37a19961b7ada16be07a99a3c", 
+            "0021ee7723a70cc915d2fa1a960932a50986ba8720b0af098f2f9d7c94481ab9", 
+            "003be64f5dda880d9a991f97009bd6874a73a78224c233bb06646d308d6e1827", 
+            "004829928b89c6d47fcda6826b1e9d62187ef9576d34507a34e42c4b51888a15", 
+            "004e5bc95b19732306a3720a3cfb25178f738dece56154a80f1df1493ce13906", 
+            "005e3724b9dcf8847b246e232746a45a1b65be39a66513bc1a43d7b8dbf2872e", 
+            "006598ef04230f1cbedb4ec5a753f9356b73729c2ec0c7950b28b45e2d092722", 
+            "007905e3daa61332a812ea52856fbd17df34efe49d07ea1df52082d1998f2031"
+        ],
+    "test":
+        [
+            "000003272077691ce8cbc781f727dda81177ef58face05682ec0aba935fe0d55", 
+            "003519222c5f218567ff3f05d15ca064dd482345cd421e9a1f2e7c1a0c8f8f90"
+        ]
+}
