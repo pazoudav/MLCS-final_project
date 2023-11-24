@@ -75,24 +75,7 @@ def get_train_test(split_name):
         test_tags.append(data['tags']) 
 
     return train_data, test_data, train_tags, test_tags   
-   
-# return validation data and tags from split-file   
-def get_validation(split_name):
-    with open(f'data/{split_name}.json', 'r') as f:
-        mapping = json.load(f)
-    validation_hashes = set(mapping['validation'])
     
-    with open(f'data/data_by_hash.json', 'r') as f:
-        data_by_hash = json.load(f)  
-
-    validation_data = []
-    validation_tags = []
-    for hash in validation_hashes:
-        data = data_by_hash.pop(hash)
-        validation_data.append(data['api_calls'])
-        validation_tags.append(data['tags'])
-
-    return validation_data, validation_tags   
 
 if __name__ == '__main__':
     basic_split('data_by_hash', 'basic_split')

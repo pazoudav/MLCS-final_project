@@ -23,7 +23,7 @@ class Encoder():
         return self
     
     def load(self):
-        self = load(f'encoders/{self.name}.enc')
+        self : __class__ = load(f'encoders/{self.name}.enc')
         return self
     
 # simple bag of words 
@@ -49,15 +49,15 @@ class BagOfWordsEncoder(Encoder):
     def encode(self, data):
         transformed_data = []
         for sample in data:
-            transformed_sample = [False]*len(self.API_calls)
+            transformed_sample = [0]*len(self.API_calls)
             for API_call in sample:
                 if API_call not in self.API_calls_set:
                     API_call = 'UNK'
-                transformed_sample[self.API_calls_dict[API_call]] = True
+                transformed_sample[self.API_calls_dict[API_call]] = 1
             transformed_data.append(transformed_sample)
         return transformed_data
       
-# extension of BagOfWordsEEncoder, counts the number of times API call occurs in the malware trace  
+# extension of BagOfWordsEncoder, counts the number of times API call occurs in the malware trace  
 # probably should be called 'CountEncoder'
 class FrequencyEncoder(BagOfWordsEncoder):
     def __init__(self, name_flag='') -> None:
@@ -89,7 +89,9 @@ class NGramEncoder(Encoder):
         
     def make(self, split='basic_split'):
         X_train, _, _, _ = get_train_test(split)
-        for sample in X_train:
+        for idx, sample in enumerate(X_train):
+            if idx % 1000 == 0:
+                print(idx)
             for API_gram in list(ngrams(sample, self.n)):
                 self.API_gram_set.add(API_gram)
         self.API_gram_set.add('UNK')
@@ -97,16 +99,18 @@ class NGramEncoder(Encoder):
         return self
         
     def encode(self, data):
-        transformed_data = []
-        for sample in data:
-            transformed_sample = [False]*len(self.API_gram_set)
+        transformed_data = np.zeros((len(data), len(self.API_gram_set)), dtype=np.uint8)
+        for id, sample in enumerate(data):
+            if id%1000 == 0:
+                print(id)
+            # transformed_sample = [False]*len(self.API_gram_set)
             API_grams = list(ngrams(sample, self.n))
             for API_gram in API_grams:
                 if API_gram not in self.API_gram_set:
                     API_gram = 'UNK'
                 idx = self.API_gram_dict[API_gram]
-                transformed_sample[idx] = True
-            transformed_data.append(transformed_sample)
+                transformed_data[id,idx] = 1
+            # transformed_data.append(np.array(transformed_sample, dtype=np.uint8))
         return transformed_data
 
 
@@ -131,7 +135,8 @@ class TF_IDFEncoder(Encoder):
     def encode(self, data):
         data_ = self.freq_enc.encode(data)
         data_ = self.transformer.transform(data_).toarray()
-        return data_
+        return np.array(data_)
+    
     
 # doesn't create a vector of fixed length, maybe useful for RNN 
 # probably won't be used 
@@ -151,16 +156,35 @@ class Numeric(BagOfWordsEncoder):
             transformed_data.append(np.array(transformed_sample))
         return transformed_data
     
-    
-if __name__ == '__main__':
-    BagOfWordsEncoder(name_flag='-small').make(split='basic_split-small').save()
-    FrequencyEncoder(name_flag='-small').make(split='basic_split-small').save()
-    TF_IDFEncoder(name_flag='-small').make(split='basic_split-small').save()
-    for n in range(2,6):
-        enc = NGramEncoder(n, name_flag='-small').make(split='basic_split-small').save()
+# creates 2d one hot encoding of malware trace up to length 4096, 
+# used in NN 
+class OneHotEncoder(Numeric):
+    def __init__(self, max_len=4096 ,name_flag='') -> None:
+        super().__init__(name_flag)
+        self.name = f'OneHot-{max_len}{name_flag}'
+        self.max_len = max_len
+        self.call_count = 0
         
-    BagOfWordsEncoder().make().save()
-    FrequencyEncoder().make().save()
-    TF_IDFEncoder().make().save()
-    for n in range(2,6):
-        enc = NGramEncoder(n).make().save()
+    def make(self, split='basic_split'):
+        self = super().make(split)
+        self.call_count = len(self.API_calls) + 1
+        return self
+    
+    def encode(self, data):
+        transformed_data_ = super().encode(data)
+        transformed_data = np.zeros((len(data), self.max_len, self.call_count,1),dtype=np.uint8)
+        # transformed_data = np.full((len(data),self.max_len), self.call_count-1)
+        for idx, trace in enumerate(transformed_data_):
+            if idx%1000 == 0:
+                print(idx)
+            if len(trace) > self.max_len:
+                trace = trace[:self.max_len]
+            transformed_data[idx,range(len(trace)),trace,0] = 1 
+            # rng = min(self.max_len, len(trace))
+            # transformed_data[idx,:rng] = trace[:rng]     
+
+        return transformed_data
+            
+                
+    
+

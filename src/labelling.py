@@ -1,12 +1,11 @@
-from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans, MiniBatchKMeans, BisectingKMeans
+from sklearn.cluster import KMeans
 from copy import deepcopy
 import json
 import numpy as np
 import os
 from joblib import dump, load
-from pprint import pprint
+import matplotlib.pyplot as plt
 
 ALL_TAGS = ['agobot', 'allaple', 'allowinfirewall', 'almanahe', 'amadey', 'amrat', 'antianalysis', 'antiav', 'antivm', 'arkeistealer', 'asackytrojan', 'asyncrat', 'autoitrunpe', 'avkeylogger', 'badpath', 'balrok', 'banker', 'base64encoded', 'berbew', 'bifrose', 'blackmoon', 'blackshades', 'bladabindi', 'blankgrabber', 'bobax', 'bodelph', 'brontok', 'buterat', 'ceatrg', 'cobaltstrike', 'coinminer', 'coins', 'coinstealer', 'crackedbyximo', 'crat', 'crealstealer', 'cybergate', 'cybergateinjector', 'darkcomet', 'dcrat', 'delphipacker', 'disabler', 'discordtokengrabber', 'dllinjectionshellcode', 'dorkbot', 'downloader', 'drat', 'drolnux', 'dropper', 'eggnog', 'fakeav', 'fakeextension', 'fakesvchost', 'fakesystemfile', 'farfli', 'fasong', 'floxif', 'formbook', 'ftpstealer', 'futurax', 'gandcrab', 'ganelp', 'genericantianalysis', 'genericantivm', 'genericdiscordtokengrabber', 'genericfakewindowsfile', 'generickeylogger', 'genericp2pworm', 'genericransomware', 'genericstealer', 'gepys', 'ghost', 'gigex', 'gleamal', 'heavensgate', 'hiveanalysis', 'hostsdisabler', 'imperium', 'keydoor', 'keylogger', 'killmbr', 'knightlogger', 'kryptik', 'lightmoon', 'loader', 'lokibot', 'lucifertokengrabber', 'ludbaruma', 'lummastealer', 'lunagrabber', 'lydra', 'maldosheader', 'mewsspy', 'mira', 'moarider', 'mofksys', 'moonlight', 'mumador', 'mydoom', 'nancatsurveillanceex', 'nanocore', 'neshta', 'netinjector', 'netkryptik', 'netlogger', 'netwire', 'nevereg', 'nitol', 'nofear', 'nworm', 'obfuscatedpersistence', 'obfuscatedrunpe', 'palevo', 'pastebinloader', 'picsys', 'pistolar', 'pluto', 'pony', 'prepscram', 'pupstudio', 'qbot', 'quasarrat', 'ramnit', 'ransomware', 'redline', 'rednet', 'reflectiveloader', 'remcosrat', 'revengerat', 'reverseencoded', 'ridnu', 'rifle', 'rotinom', 'rozena', 'runpe', 'sakularat', 'salgorea', 'sality', 'scar', 'sfone', 'shade', 'shellcode', 'shifu', 'sillyp2p', 'simbot', 'simda', 'smokeloader', 'snakekeylogger', 'socks', 'soltern', 'spy', 'stealer', 'stopransomware', 'suspiciouspdbpath', 'syla', 'telegrambot', 'tempedreve', 'tinba', 'tofsee', 'uacbypass', 'unruy', 'upatre', 'urelas', 'vbautorunworm', 'vbinjector', 'vboxvulndriver', 'vbsdropper', 'vflooder', 'vilsel', 'virut', 'vmprotect', 'vobfus', 'vulnerabledriver', 'wabot', 'windefenderdisabler', 'windex', 'winpayloads', 'wormautorun', 'wormyfier', 'xorencrypted', 'xredrat', 'xwormrat', 'zegost', 'zeus', 'zxshell']
 ALL_TAGS_DICT = {tag: idx for idx, tag in enumerate(ALL_TAGS)}
@@ -188,13 +187,39 @@ class SubsetLabeller(Labeller):
     
      
 if __name__ == '__main__':
-    ...
-    # s = SubsetLabeller().load()
-    # all_tags = s.get_tags(s.hashes)
-    # all_labels = s.label(all_tags)
-    # hystogram = [0]*len(s.subsets)
-    # for x in all_labels:
-    #     hystogram[x] += 1
-    # print(list(zip(hystogram, s.subsets)))
-    # # print(len(s))
+    s : EnumerativeLabeller = EnumerativeLabeller().load()
+    all_tags = s.get_tags(s.hashes)
+    all_labels = s.label(all_tags)
+    c = len(s.vec_to_num)
+    hystogram = [0]*c
+    for x in all_labels:
+        hystogram[x] += 1
+    hyst2 = {}
+    for count in hystogram:
+        try:
+            hyst2[count] += 1
+        except:
+            hyst2[count] = 1
+    hyst2 = sorted(hyst2.items())
+    total = 0
+    data = []
+    for i, x in hyst2:
+        for j in range(x):
+            total += i
+            data.append(i)
+    data = list(reversed(data))
+    size = len(data)
+    # plt.xscale('log')
+    plt.plot([74,74], [0,data[0]],linewidth=1)
+    plt.plot(range(size), data,linewidth=1)
+    plt.fill_between(range(size), data, [0]*size)
+    
+    
+    plt.title("tag hystogram")
+    plt.xlabel("sorted unique tag comb")
+    plt.ylabel("number of traces with tag comb")
+    plt.legend(["80th percentile"])
+    
+    plt.show()
+
     

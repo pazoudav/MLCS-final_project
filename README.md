@@ -24,8 +24,8 @@ Preprocessed dataset containing a list of API calls in a .txt file per virus exe
 Size of the dataset is 2.1GB.
 
 Dataset is also saved in 'data_by_hash.json' where each hash is saved with its API calls and tags
-(google drives 'data_by_hash.json' contains a wrong data, for use create one locally with 'make_data_by_hash_json' in preprocessing.py)
 
-Small 1/10 dataset for testing and parameter tuning purposes in 'data_by_hash-small.json' 
+
+
 
 
